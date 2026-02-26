@@ -154,21 +154,62 @@ The application is now available at: **http://localhost:8000**
 
 ### 7. Stripe Webhook Testing (Development)
 
-To test Stripe webhooks locally, use the Stripe CLI:
+Stripe webhooks are required for booking status to update from `PENDING` to `CONFIRMED` after payment. Since Stripe cannot reach `localhost`, you need to use the Stripe CLI to forward webhook events to your local server.
+
+#### Install the Stripe CLI
 
 ```bash
-# Install Stripe CLI (macOS)
+# macOS
 brew install stripe/stripe-cli/stripe
 
-# Login to Stripe
+# Linux (Debian/Ubuntu)
+curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
+echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+sudo apt update && sudo apt install stripe
+
+# Arch Linux
+yay -S stripe-cli
+
+# Or download directly from https://github.com/stripe/stripe-cli/releases
+```
+
+#### Forward Webhooks to Local Server
+
+```bash
+# Login to your Stripe account (opens browser)
 stripe login
 
-# Forward webhooks to your local server
+# Start forwarding webhooks to your local Django server
 stripe listen --forward-to localhost:8000/bookings/webhook/stripe/
-
-# Note the webhook signing secret and add it to .env
-# STRIPE_WEBHOOK_SECRET=whsec_...
 ```
+
+The CLI will output something like:
+```
+Ready! Your webhook signing secret is whsec_abc123def456...
+```
+
+#### Update Your Environment
+
+Add the webhook signing secret to your `.env` file:
+```env
+STRIPE_WEBHOOK_SECRET=whsec_abc123def456...
+```
+
+**Important:** The secret must start with `whsec_`. If you see `rk_test_` or `sk_test_`, that's the wrong key.
+
+Restart your Django server after updating `.env`.
+
+#### Verify Webhooks Are Working
+
+1. Keep `stripe listen` running in one terminal
+2. Run Django server in another terminal
+3. Complete a test booking and payment
+4. You should see webhook events in the Stripe CLI output:
+   ```
+   2024-01-15 10:30:00  --> checkout.session.completed [evt_xxx]
+   2024-01-15 10:30:00  <-- [200] POST http://localhost:8000/bookings/webhook/stripe/
+   ```
+5. The booking status should change from `PENDING` to `CONFIRMED`
 
 ### Stopping Development Services
 
