@@ -84,11 +84,11 @@
                             Mark as Completed
                         </button>
                     </form>
+                    {% else %}
+                    (no actions available yet)
+
                     {% endif %}
 
-                    <a href="mailto:{{ booking.customer_email }}" class="btn btn-secondary" style="width: 100%; margin-top: 0.5rem;">
-                        Email Customer
-                    </a>
                 </section>
 
                 <section style="margin-top: 1.5rem; font-size: 0.875rem; color: var(--color-text-light);">
