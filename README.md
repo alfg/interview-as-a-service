@@ -292,7 +292,7 @@ Edit `.env` with production values:
 # Django
 SECRET_KEY=your-secure-random-secret-key
 DEBUG=false
-ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
+ALLOWED_HOSTS=example.com,www.example.com
 
 # Database
 POSTGRES_DB=interview_service
@@ -318,9 +318,9 @@ CAL_COM_API_KEY=your-cal-com-api-key
 # Email (SMTP)
 EMAIL_HOST=smtp.mailgun.org
 EMAIL_PORT=587
-EMAIL_HOST_USER=postmaster@yourdomain.com
+EMAIL_HOST_USER=postmaster@example.com
 EMAIL_HOST_PASSWORD=your-smtp-password
-DEFAULT_FROM_EMAIL=noreply@yourdomain.com
+DEFAULT_FROM_EMAIL=noreply@example.com
 
 # Security
 SECURE_SSL_REDIRECT=true
@@ -365,14 +365,57 @@ docker compose -f docker-compose.prod.yml exec web python manage.py collectstati
 
 ### 4. Configure Stripe Webhooks
 
-1. Go to [Stripe Dashboard > Webhooks](https://dashboard.stripe.com/webhooks)
-2. Add endpoint: `https://yourdomain.com/bookings/webhook/stripe/`
-3. Select events: `checkout.session.completed`
-4. Copy the signing secret to `STRIPE_WEBHOOK_SECRET` in `.env`
-5. Restart the web service:
+Stripe webhooks are required for booking status to update from `PENDING` to `CONFIRMED` after payment. Unlike development (which uses the Stripe CLI), production webhooks are sent directly from Stripe to your server.
+
+#### Create the Webhook Endpoint
+
+1. Go to [Stripe Dashboard > Developers > Webhooks](https://dashboard.stripe.com/webhooks)
+2. Ensure you're in **Live mode** (toggle in top-left) for production
+3. Click **Add endpoint**
+4. Configure the endpoint:
+   - **Endpoint URL**: `https://example.com/bookings/webhook/stripe/`
+   - **Description**: Interview service booking confirmations (optional)
+   - **Listen to**: Events on your account
+   - **Select events**: Click "Select events", expand "Checkout", check `checkout.session.completed`
+5. Click **Add endpoint**
+
+#### Get the Signing Secret
+
+1. After creating the endpoint, click on it to view details
+2. Under **Signing secret**, click **Reveal**
+3. Copy the secret (starts with `whsec_`)
+
+#### Update Production Environment
+
+Add the signing secret to your production `.env`:
+```env
+STRIPE_WEBHOOK_SECRET=whsec_your_production_signing_secret
+```
+
+Restart the web service to apply changes:
+```bash
+docker compose -f docker-compose.prod.yml restart web
+```
+
+#### Verify Webhook Delivery
+
+1. In Stripe Dashboard, go to your webhook endpoint
+2. Click **Send test webhook**
+3. Select `checkout.session.completed` and click **Send test webhook**
+4. Check the **Webhook attempts** tab - you should see a `200` response
+5. If you see errors, check your application logs:
    ```bash
-   docker compose -f docker-compose.prod.yml restart web
+   docker compose -f docker-compose.prod.yml logs web
    ```
+
+#### Troubleshooting
+
+| Error | Cause | Solution |
+|-------|-------|----------|
+| `400` response | Invalid signature | Verify `STRIPE_WEBHOOK_SECRET` matches the signing secret shown in Stripe Dashboard |
+| `404` response | Wrong URL | Ensure endpoint URL is exactly `/bookings/webhook/stripe/` (with trailing slash) |
+| `500` response | Application error | Check Django logs for exceptions |
+| Connection timeout | Server unreachable | Verify your domain resolves and HTTPS is working |
 
 ### 5. SSL/HTTPS Configuration
 
@@ -390,16 +433,16 @@ Example SSL nginx configuration:
 ```nginx
 server {
     listen 80;
-    server_name yourdomain.com;
+    server_name example.com;
     return 301 https://$server_name$request_uri;
 }
 
 server {
     listen 443 ssl;
-    server_name yourdomain.com;
+    server_name example.com;
 
-    ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
-    ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
+    ssl_certificate /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
 
     location /static/ {
         alias /app/staticfiles/;
@@ -492,7 +535,7 @@ python manage.py collectstatic --noinput
 ### Stripe webhooks not working
 ```bash
 # Check webhook endpoint is accessible
-curl -X POST https://yourdomain.com/bookings/webhook/stripe/
+curl -X POST https://example.com/bookings/webhook/stripe/
 
 # Verify STRIPE_WEBHOOK_SECRET is set correctly
 # Check Stripe dashboard for webhook delivery attempts
