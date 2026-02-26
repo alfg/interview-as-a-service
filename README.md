@@ -159,16 +159,20 @@ Stripe webhooks are required for booking status to update from `PENDING` to `CON
 #### Install the Stripe CLI
 
 ```bash
-# macOS
-brew install stripe/stripe-cli/stripe
+# Arch Linux
+yay -S stripe-cli
+
+# Manjaro Linux
+pamac install stripe-cli
 
 # Linux (Debian/Ubuntu)
 curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
 echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
 sudo apt update && sudo apt install stripe
 
-# Arch Linux
-yay -S stripe-cli
+# macOS
+brew install stripe/stripe-cli/stripe
+
 
 # Or download directly from https://github.com/stripe/stripe-cli/releases
 ```
