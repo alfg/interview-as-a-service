@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.db import models
 
 from interviewers.models import Interviewer
@@ -76,5 +78,5 @@ class Booking(models.Model):
     def amount_cents(self):
         """Calculate the amount in cents for Stripe."""
         hourly_rate = self.interviewer.hourly_rate
-        hours = self.duration_minutes / 60
+        hours = Decimal(self.duration_minutes) / Decimal(60)
         return int(hourly_rate * hours * 100)

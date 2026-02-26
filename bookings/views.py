@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from django.conf import settings
@@ -9,6 +10,8 @@ from interviewers.models import Interviewer
 
 from .models import Booking
 from .stripe import create_checkout_session, retrieve_checkout_session
+
+logger = logging.getLogger(__name__)
 
 
 def booking_start(request, interviewer_id):
@@ -90,6 +93,7 @@ def create_booking(request, interviewer_id):
         booking.save()
         return redirect(session.url)
     except Exception as e:
+        logger.exception("Failed to create Stripe checkout session")
         booking.delete()
         messages.error(request, f"Payment setup failed: {str(e)}")
         return redirect("bookings:start", interviewer_id=interviewer_id)
