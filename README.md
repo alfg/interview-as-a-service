@@ -93,7 +93,10 @@ MinIO Console credentials: `minioadmin` / `minioadmin`
 ### 4. Initialize Django
 
 ```bash
-# Run database migrations
+# Create database migrations for all apps
+python manage.py makemigrations
+
+# Apply migrations to create tables
 python manage.py migrate
 
 # Create a superuser for Django admin
@@ -302,8 +305,10 @@ This starts:
 
 ### 3. Initialize Production Database
 
+> **Note**: Migration files should be created during development (`makemigrations`) and committed to the repository. Production only runs `migrate` to apply them.
+
 ```bash
-# Run migrations
+# Apply migrations to create tables
 docker compose -f docker-compose.prod.yml exec web python manage.py migrate
 
 # Create superuser
