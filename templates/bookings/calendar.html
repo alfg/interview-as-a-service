@@ -18,12 +18,8 @@
 
         <!-- Cal.com Embed -->
         <div id="cal-embed" style="min-height: 600px; border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden;">
-            <!-- Cal.com inline embed -->
-            <iframe
-                src="https://cal.com/{{ interviewer.cal_event_type_id }}?embed=true&theme=light"
-                style="width: 100%; height: 600px; border: none;"
-                loading="lazy">
-            </iframe>
+            <!-- Cal.com SDK embed will render here -->
+            <div id="cal-inline" style="width: 100%; height: 900px;"></div>
         </div>
 
         <div style="margin-top: 2rem; text-align: center;">
@@ -36,14 +32,30 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-// Listen for cal.com postMessage events to capture selected time
-window.addEventListener('message', function(event) {
-    // Check if the message is from cal.com
-    if (event.data && event.data.type === 'cal:booking_successful') {
-        const bookingData = event.data.data;
+<!-- Cal.com Embed SDK -->
+<script type="text/javascript">
+(function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if(typeof namespace === "string"){cal.ns[namespace] = cal.ns[namespace] || api;p(cal.ns[namespace], ar);p(cal, ["initNamespace", namespace]);} else p(cal, ar); return;} p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+
+Cal("init", {origin:"https://cal.com"});
+
+Cal("inline", {
+    elementOrSelector: "#cal-inline",
+    calLink: "{{ interviewer.cal_event_type_id }}",
+    config: {
+        theme: "light"
+    }
+});
+
+// Listen for booking confirmation from Cal.com SDK
+Cal("on", {
+    action: "bookingSuccessful",
+    callback: (e) => {
+        console.log("Cal.com booking successful:", e.detail);
+        const bookingData = e.detail.data;
+        // Use startTime if available, fall back to date
+        const datetime = bookingData.startTime || bookingData.date;
         // Redirect to the booking form with the selected datetime
-        window.location.href = '{% url "bookings:form" interviewer.id %}?datetime=' + encodeURIComponent(bookingData.startTime);
+        window.location.href = '{% url "bookings:form" interviewer.id %}?datetime=' + encodeURIComponent(datetime);
     }
 });
 </script>
