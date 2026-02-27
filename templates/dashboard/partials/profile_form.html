@@ -72,5 +72,20 @@
         </div>
     </div>
 
+    <div class="form-group">
+        <label>Languages</label>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            {% for language in languages %}
+                <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background-color: var(--color-bg-alt); border-radius: var(--radius-sm); cursor: pointer;">
+                    <input type="checkbox"
+                           name="languages"
+                           value="{{ language.id }}"
+                           {% if language in interviewer.languages.all %}checked{% endif %}>
+                    {{ language.name }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
     <button type="submit" class="btn btn-primary">Save Changes</button>
 </div>

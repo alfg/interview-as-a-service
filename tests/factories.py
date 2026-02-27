@@ -8,7 +8,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 
 from bookings.models import Booking
-from interviewers.models import Interviewer, InterviewSubject, Technology
+from interviewers.models import HumanLanguage, Interviewer, InterviewSubject, Technology
 
 
 class UserFactory(factory.django.DjangoModelFactory):
@@ -38,6 +38,14 @@ class InterviewSubjectFactory(factory.django.DjangoModelFactory):
     slug = factory.LazyAttribute(lambda obj: obj.name.lower().replace(" ", "-"))
 
 
+class HumanLanguageFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = HumanLanguage
+
+    name = factory.Sequence(lambda n: f"Language {n}")
+    slug = factory.LazyAttribute(lambda obj: obj.name.lower().replace(" ", "-"))
+
+
 class InterviewerFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Interviewer
@@ -64,6 +72,14 @@ class InterviewerFactory(factory.django.DjangoModelFactory):
         if extracted:
             for subject in extracted:
                 self.subjects.add(subject)
+
+    @factory.post_generation
+    def languages(self, create, extracted, **kwargs):
+        if not create:
+            return
+        if extracted:
+            for language in extracted:
+                self.languages.add(language)
 
 
 class BookingFactory(factory.django.DjangoModelFactory):

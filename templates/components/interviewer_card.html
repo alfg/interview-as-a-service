@@ -16,6 +16,9 @@
             {% for tech in interviewer.technologies.all|slice:":3" %}
                 <span class="tag tag-tech">{{ tech.name }}</span>
             {% endfor %}
+            {% for language in interviewer.languages.all|slice:":2" %}
+                <span class="tag tag-language">{{ language.name }}</span>
+            {% endfor %}
         </div>
         <div class="companies">
             {% for company in interviewer.company_list|slice:":2" %}

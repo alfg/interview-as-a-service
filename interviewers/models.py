@@ -29,6 +29,19 @@ class InterviewSubject(models.Model):
         return self.name
 
 
+class HumanLanguage(models.Model):
+    """Human languages an interviewer can conduct interviews in."""
+
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
 class Interviewer(models.Model):
     """Interviewer profile linked to Django auth user."""
 
@@ -55,6 +68,11 @@ class Interviewer(models.Model):
     )
     subjects = models.ManyToManyField(
         InterviewSubject,
+        related_name="interviewers",
+        blank=True,
+    )
+    languages = models.ManyToManyField(
+        HumanLanguage,
         related_name="interviewers",
         blank=True,
     )

@@ -19,7 +19,7 @@
                         hx-get="{% url 'interviewers:list' %}"
                         hx-target="#interviewers-grid"
                         hx-swap="innerHTML"
-                        hx-include="[name='subject']">
+                        hx-include="[name='subject'], [name='language']">
                     <option value="">All Technologies</option>
                     {% for tech in technologies %}
                         <option value="{{ tech.slug }}" {% if selected_tech == tech.slug %}selected{% endif %}>
@@ -35,11 +35,27 @@
                         hx-get="{% url 'interviewers:list' %}"
                         hx-target="#interviewers-grid"
                         hx-swap="innerHTML"
-                        hx-include="[name='technology']">
+                        hx-include="[name='technology'], [name='language']">
                     <option value="">All Types</option>
                     {% for subject in subjects %}
                         <option value="{{ subject.slug }}" {% if selected_subject == subject.slug %}selected{% endif %}>
                             {{ subject.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="language-filter">Language</label>
+                <select id="language-filter"
+                        name="language"
+                        hx-get="{% url 'interviewers:list' %}"
+                        hx-target="#interviewers-grid"
+                        hx-swap="innerHTML"
+                        hx-include="[name='technology'], [name='subject']">
+                    <option value="">All Languages</option>
+                    {% for language in languages %}
+                        <option value="{{ language.slug }}" {% if selected_language == language.slug %}selected{% endif %}>
+                            {{ language.name }}
                         </option>
                     {% endfor %}
                 </select>

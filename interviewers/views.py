@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render
 
-from .models import Interviewer, InterviewSubject, Technology
+from .models import HumanLanguage, Interviewer, InterviewSubject, Technology
 
 
 def interviewer_list(request):
@@ -17,8 +17,16 @@ def interviewer_list(request):
     if subject_slug:
         interviewers = interviewers.filter(subjects__slug=subject_slug)
 
+    # Filter by language
+    language_slug = request.GET.get("language")
+    if language_slug:
+        interviewers = interviewers.filter(languages__slug=language_slug)
+
+    interviewers = interviewers.distinct()
+
     technologies = Technology.objects.all()
     subjects = InterviewSubject.objects.all()
+    languages = HumanLanguage.objects.all()
 
     # For HTMX partial requests, return just the grid
     if request.headers.get("HX-Request"):
@@ -35,8 +43,10 @@ def interviewer_list(request):
             "interviewers": interviewers,
             "technologies": technologies,
             "subjects": subjects,
+            "languages": languages,
             "selected_tech": tech_slug,
             "selected_subject": subject_slug,
+            "selected_language": language_slug,
         },
     )
 

@@ -3,7 +3,12 @@
 import pytest
 from django.urls import reverse
 
-from tests.factories import InterviewerFactory, BookingFactory, TechnologyFactory
+from tests.factories import (
+    BookingFactory,
+    HumanLanguageFactory,
+    InterviewerFactory,
+    TechnologyFactory,
+)
 
 
 @pytest.mark.django_db
@@ -39,6 +44,18 @@ class TestInterviewersList:
 
         response = client.get(reverse("interviewers:list") + "?technology=python")
         assert response.status_code == 200
+        assert with_tech.display_name.encode() in response.content
+        assert without_tech.display_name.encode() not in response.content
+
+    def test_filter_by_language(self, client):
+        spanish = HumanLanguageFactory(name="Spanish", slug="spanish")
+        with_language = InterviewerFactory(languages=[spanish])
+        without_language = InterviewerFactory()
+
+        response = client.get(reverse("interviewers:list") + "?language=spanish")
+        assert response.status_code == 200
+        assert with_language.display_name.encode() in response.content
+        assert without_language.display_name.encode() not in response.content
 
     def test_featured_interviewers_htmx(self, client):
         InterviewerFactory()
