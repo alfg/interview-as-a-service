@@ -13,7 +13,7 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "true").lower() == "true"
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
+CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS]
 # Database
 DATABASES = {
     "default": {
