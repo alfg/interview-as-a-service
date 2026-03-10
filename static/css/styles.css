@@ -372,6 +372,11 @@ a:hover {
     color: #166534;
 }
 
+.tag-language {
+    background-color: #ede9fe;
+    color: #5b21b6;
+}
+
 .companies {
     font-size: 0.875rem;
     color: var(--color-text-light);

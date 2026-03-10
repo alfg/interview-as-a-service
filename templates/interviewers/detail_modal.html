@@ -38,6 +38,15 @@
             </div>
             {% endif %}
 
+            {% if interviewer.languages.exists %}
+            <h4>Languages</h4>
+            <div class="tags" style="margin-bottom: 1.5rem;">
+                {% for language in interviewer.languages.all %}
+                    <span class="tag tag-language">{{ language.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
             {% if interviewer.company_list %}
             <h4>Previous Companies</h4>
             <p class="companies">

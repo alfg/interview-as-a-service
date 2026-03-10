@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Interviewer, InterviewSubject, Technology
+from .models import HumanLanguage, Interviewer, InterviewSubject, Technology
 
 
 @admin.register(Technology)
@@ -17,17 +17,24 @@ class InterviewSubjectAdmin(admin.ModelAdmin):
     search_fields = ["name"]
 
 
+@admin.register(HumanLanguage)
+class HumanLanguageAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug"]
+    prepopulated_fields = {"slug": ("name",)}
+    search_fields = ["name"]
+
+
 @admin.register(Interviewer)
 class InterviewerAdmin(admin.ModelAdmin):
     list_display = ["display_name", "hourly_rate", "is_active", "created_at"]
-    list_filter = ["is_active", "technologies", "subjects"]
+    list_filter = ["is_active", "technologies", "subjects", "languages"]
     search_fields = ["user__username", "user__first_name", "user__last_name", "bio"]
-    filter_horizontal = ["technologies", "subjects"]
+    filter_horizontal = ["technologies", "subjects", "languages"]
     readonly_fields = ["created_at", "updated_at"]
     fieldsets = [
         (None, {"fields": ["user", "is_active"]}),
         ("Profile", {"fields": ["bio", "photo", "companies"]}),
         ("Booking", {"fields": ["cal_event_type_id", "hourly_rate"]}),
-        ("Skills", {"fields": ["technologies", "subjects"]}),
+        ("Skills", {"fields": ["technologies", "subjects", "languages"]}),
         ("Timestamps", {"fields": ["created_at", "updated_at"]}),
     ]

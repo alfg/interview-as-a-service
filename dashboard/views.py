@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from bookings.models import Booking
-from interviewers.models import InterviewSubject, Technology
+from interviewers.models import HumanLanguage, InterviewSubject, Technology
 
 
 @login_required
@@ -48,6 +48,7 @@ def profile_edit(request):
     interviewer = request.user.interviewer
     technologies = Technology.objects.all()
     subjects = InterviewSubject.objects.all()
+    languages = HumanLanguage.objects.all()
 
     if request.method == "POST":
         # Update profile fields
@@ -67,6 +68,10 @@ def profile_edit(request):
         subject_ids = request.POST.getlist("subjects")
         interviewer.subjects.set(InterviewSubject.objects.filter(id__in=subject_ids))
 
+        # Update languages
+        language_ids = request.POST.getlist("languages")
+        interviewer.languages.set(HumanLanguage.objects.filter(id__in=language_ids))
+
         interviewer.save()
         messages.success(request, "Profile updated successfully!")
 
@@ -79,6 +84,7 @@ def profile_edit(request):
                     "interviewer": interviewer,
                     "technologies": technologies,
                     "subjects": subjects,
+                    "languages": languages,
                 },
             )
 
@@ -91,6 +97,7 @@ def profile_edit(request):
             "interviewer": interviewer,
             "technologies": technologies,
             "subjects": subjects,
+            "languages": languages,
         },
     )
 

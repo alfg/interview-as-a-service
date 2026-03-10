@@ -3,13 +3,14 @@
 import pytest
 from decimal import Decimal
 
-from interviewers.models import Interviewer, Technology, InterviewSubject
+from interviewers.models import Interviewer, InterviewSubject, Technology
 from bookings.models import Booking
 from tests.factories import (
     BookingFactory,
+    HumanLanguageFactory,
     InterviewerFactory,
-    TechnologyFactory,
     InterviewSubjectFactory,
+    TechnologyFactory,
 )
 
 
@@ -30,6 +31,18 @@ class TestInterviewSubject:
     def test_str_representation(self):
         subject = InterviewSubjectFactory(name="System Design")
         assert str(subject) == "System Design"
+
+
+@pytest.mark.django_db
+class TestHumanLanguage:
+    def test_str_representation(self):
+        language = HumanLanguageFactory(name="Spanish")
+        assert str(language) == "Spanish"
+
+    def test_slug_is_unique(self):
+        HumanLanguageFactory(name="Mandarin", slug="mandarin")
+        with pytest.raises(Exception):
+            HumanLanguageFactory(name="Mandarin Chinese", slug="mandarin")
 
 
 @pytest.mark.django_db
@@ -67,6 +80,13 @@ class TestInterviewer:
         interviewer = InterviewerFactory(technologies=[tech1, tech2])
         assert tech1 in interviewer.technologies.all()
         assert tech2 in interviewer.technologies.all()
+
+    def test_many_to_many_languages(self):
+        spanish = HumanLanguageFactory(name="Spanish", slug="spanish")
+        mandarin = HumanLanguageFactory(name="Mandarin", slug="mandarin")
+        interviewer = InterviewerFactory(languages=[spanish, mandarin])
+        assert spanish in interviewer.languages.all()
+        assert mandarin in interviewer.languages.all()
 
 
 @pytest.mark.django_db
