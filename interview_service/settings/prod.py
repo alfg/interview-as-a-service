@@ -40,6 +40,7 @@ AWS_STORAGE_BUCKET_NAME = os.environ.get("MINIO_BUCKET_NAME", "interview-service
 AWS_S3_ENDPOINT_URL = os.environ.get("MINIO_ENDPOINT_URL")
 AWS_S3_CUSTOM_DOMAIN = os.environ.get("MINIO_PUBLIC_URL")
 AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = "public-read"
 AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_REGION_NAME = "us-east-1"
 
